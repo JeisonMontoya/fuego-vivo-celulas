@@ -41,6 +41,9 @@ new class extends Component
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('directory')" :active="request()->routeIs('directory')" wire:navigate>
+                        {{ __('Directorio') }}
+                    </x-nav-link>
                     @if(auth()->user()->role === 'admin')
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" wire:navigate>
                             {{ __('Panel Admin') }}
@@ -71,7 +74,9 @@ new class extends Component
             </div>
 
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+                <livewire:system-status />
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150 gap-2">
@@ -123,6 +128,9 @@ new class extends Component
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('directory')" :active="request()->routeIs('directory')" wire:navigate>
+                {{ __('Directorio') }}
+            </x-responsive-nav-link>
             @if(auth()->user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" wire:navigate>
                     {{ __('Panel Admin') }}
@@ -153,7 +161,10 @@ new class extends Component
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4 flex items-center gap-3">
+            <div class="px-4 mb-3">
+                <livewire:system-status />
+            </div>
+            <div class="px-4 flex items-center gap-3 border-t border-gray-100 pt-3">
                 @if(auth()->user()->photo_path)
                     <img class="h-10 w-10 object-cover rounded-full border border-gray-200" src="{{ asset('storage/' . auth()->user()->photo_path) }}" alt="{{ auth()->user()->name }}">
                 @else

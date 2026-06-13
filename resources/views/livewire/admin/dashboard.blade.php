@@ -15,6 +15,10 @@ new #[Layout('layouts.app')] class extends Component {
     public $totalAttendance = 0;
     public $activeCellsCount = 0;
 
+    // Estado del Sistema
+    public $systemStatus = 'green';
+    public $systemStatusMessage = '';
+
     // Notificaciones
     public $showNotificationModal = false;
     public $selectedLeaderId = null;
@@ -22,6 +26,8 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function mount()
     {
+        $this->systemStatus = \Illuminate\Support\Facades\Cache::get('system_status', 'green');
+        $this->systemStatusMessage = \Illuminate\Support\Facades\Cache::get('system_status_message', 'Todos los sistemas operativos.');
         $this->loadData();
     }
 
@@ -98,6 +104,18 @@ new #[Layout('layouts.app')] class extends Component {
         $this->showNotificationModal = false;
         $this->notificationMessage = '';
     }
+    public function updateSystemStatus()
+    {
+        $this->validate([
+            'systemStatus' => 'required|in:green,orange,red',
+            'systemStatusMessage' => 'required|string|max:255'
+        ]);
+
+        \Illuminate\Support\Facades\Cache::forever('system_status', $this->systemStatus);
+        \Illuminate\Support\Facades\Cache::forever('system_status_message', $this->systemStatusMessage);
+
+        session()->flash('status', 'Estado global del sistema actualizado con éxito.');
+    }
 }; ?>
 
 <div>
@@ -159,6 +177,39 @@ new #[Layout('layouts.app')] class extends Component {
                         <p class="text-orange-100 font-medium text-sm mt-1">Células Activas</p>
                     </div>
                     <svg class="absolute -right-2 -bottom-4 w-24 h-24 text-black opacity-10 transform -rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+            </div>
+
+            <!-- Control de Estado del Sistema -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border border-gray-100">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Estado Global del Sistema
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <form wire:submit="updateSystemStatus" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                        <div class="col-span-1">
+                            <label for="systemStatus" class="block text-sm font-bold text-gray-700 mb-1">Indicador Visual</label>
+                            <select wire:model="systemStatus" id="systemStatus" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                                <option value="green">🟢 Operativo (Verde)</option>
+                                <option value="orange">🟠 Problemas / Mantenimiento (Naranja)</option>
+                                <option value="red">🔴 Caída Crítica (Rojo)</option>
+                            </select>
+                            @error('systemStatus') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="col-span-1 md:col-span-2 flex gap-4 items-end">
+                            <div class="flex-1">
+                                <label for="systemStatusMessage" class="block text-sm font-bold text-gray-700 mb-1">Mensaje para los usuarios</label>
+                                <input type="text" wire:model="systemStatusMessage" id="systemStatusMessage" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Ej: Todos los sistemas operativos.">
+                                @error('systemStatusMessage') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Actualizar
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
