@@ -25,6 +25,10 @@ jobs:
             # Instalar dependencias de PHP
             composer install --no-interaction --prefer-dist --optimize-autoloader
             
+            # Instalar y compilar dependencias de Node/Vite (Frontend)
+            npm install
+            npm run build
+            
             # Correr migraciones de base de datos
             php artisan migrate --force
             

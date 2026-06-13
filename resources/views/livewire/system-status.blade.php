@@ -54,7 +54,17 @@ new class extends Component {
             @else ✅ Estado del Sistema
             @endif
         </div>
-        <p class="text-gray-300">{{ $message }}</p>
+        <p class="text-gray-300 mb-2">{{ $message }}</p>
+        
+        @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'supervisor'))
+            <div class="border-t border-gray-700 pt-2 mt-2">
+                <a href="{{ route('admin.dashboard') }}" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold inline-flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Editar Estado
+                </a>
+            </div>
+        @endif
+        
         <div class="absolute -top-1 right-8 w-3 h-3 bg-gray-900 transform rotate-45"></div>
     </div>
 </div>
