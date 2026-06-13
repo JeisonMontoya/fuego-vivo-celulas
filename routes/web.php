@@ -1,5 +1,7 @@
 <?php
 
+// Archivo principal de rutas de la aplicación
+
 use Livewire\Volt\Volt;
 
 Volt::route('/', 'pages.directory')->name('directory');
