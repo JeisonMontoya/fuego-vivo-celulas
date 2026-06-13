@@ -443,49 +443,55 @@ new #[Layout('layouts.app')] class extends Component {
 
         <form wire:submit="sendMessage" class="flex items-end gap-2">
             
-            <!-- File Button -->
-            <label class="cursor-pointer p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition flex-shrink-0" title="Adjuntar archivo">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                <input type="file" wire:model="attachment" class="hidden">
-            </label>
-
-            <!-- Emoji Picker -->
-            <div class="relative" x-data="{ emojiOpen: false }">
-                <button type="button" @click="emojiOpen = !emojiOpen" class="p-3 text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 rounded-full transition flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </button>
+            <!-- Contenedor Principal (Píldora) -->
+            <div class="flex-1 flex items-end bg-gray-100 rounded-3xl border border-transparent focus-within:border-indigo-300 focus-within:bg-white transition-colors duration-200 shadow-sm relative min-h-[44px]">
                 
-                <!-- Contenedor del Emoji Picker Profesional -->
-                <div x-show="emojiOpen" x-transition style="display: none; bottom: 100%; margin-bottom: 15px;" @click.outside="emojiOpen = false" class="absolute sm:left-0 -left-10 z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
-                    <emoji-picker class="light" style="--num-columns: 8; --emoji-size: 1.5rem;" @emoji-click="insertEmoji($event.detail.unicode)"></emoji-picker>
+                <!-- Emoji Picker -->
+                <div class="relative flex-shrink-0" x-data="{ emojiOpen: false }">
+                    <button type="button" @click="emojiOpen = !emojiOpen" class="px-3 py-2 text-gray-500 hover:text-indigo-600 transition h-full flex items-center mt-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
+                    
+                    <!-- Contenedor del Emoji Picker Profesional -->
+                    <div x-show="emojiOpen" x-transition style="display: none; bottom: 100%; margin-bottom: 10px;" @click.outside="emojiOpen = false" class="absolute sm:left-0 -left-2 z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
+                        <emoji-picker class="light" style="--num-columns: 8; --emoji-size: 1.5rem;" @emoji-click="insertEmoji($event.detail.unicode)"></emoji-picker>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Input Text -->
-            <div class="flex-1 relative">
-                <textarea 
-                    wire:model="body" 
-                    x-on:keydown.enter.prevent="if(!$event.shiftKey) $wire.sendMessage()"
-                    placeholder="Escribe un mensaje..." 
-                    class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl resize-none bg-gray-50 max-h-32 py-3" 
-                    rows="1"
-                    style="overflow-y: hidden;"
-                    x-data="{ resize() { 
-                        $el.style.height = 'auto'; 
-                        $el.style.height = ($el.scrollHeight + 2) + 'px';
-                        $el.style.overflowY = $el.scrollHeight > 120 ? 'auto' : 'hidden';
-                    } }"
-                    x-init="resize()"
-                    @input="resize(); sendTypingEvent();"
-                ></textarea>
-                <div wire:loading wire:target="attachment" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <svg class="animate-spin h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <!-- Input Text -->
+                <div class="flex-1 relative flex items-center">
+                    <textarea 
+                        wire:model="body" 
+                        x-on:keydown.enter.prevent="if(!$event.shiftKey) $wire.sendMessage()"
+                        placeholder="Mensaje" 
+                        class="w-full border-none focus:ring-0 bg-transparent resize-none max-h-32 py-2.5 px-0 text-[15px] leading-relaxed" 
+                        rows="1"
+                        style="overflow-y: hidden;"
+                        x-data="{ resize() { 
+                            $el.style.height = 'auto'; 
+                            $el.style.height = ($el.scrollHeight) + 'px';
+                            $el.style.overflowY = $el.scrollHeight > 100 ? 'auto' : 'hidden';
+                        } }"
+                        x-init="resize()"
+                        @input="resize(); sendTypingEvent();"
+                    ></textarea>
                 </div>
+
+                <!-- File Button -->
+                <label class="cursor-pointer px-3 py-2 text-gray-500 hover:text-indigo-600 transition flex-shrink-0 flex items-center mt-1" title="Adjuntar archivo">
+                    <svg class="w-5 h-5 transform -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    <input type="file" wire:model="attachment" class="hidden">
+                </label>
             </div>
 
             <!-- Send Button -->
-            <button type="submit" class="p-3 bg-indigo-600 text-white hover:bg-indigo-700 rounded-full transition flex-shrink-0 shadow-md transform active:scale-95" wire:loading.attr="disabled">
-                <svg class="w-6 h-6 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <button type="submit" class="bg-indigo-600 text-white hover:bg-indigo-700 rounded-full transition flex-shrink-0 shadow-md transform active:scale-95 flex items-center justify-center w-11 h-11 self-end mb-0.5" wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="attachment" class="flex items-center justify-center pr-0.5">
+                    <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </span>
+                <span wire:loading wire:target="attachment">
+                    <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </span>
             </button>
         </form>
     </div>

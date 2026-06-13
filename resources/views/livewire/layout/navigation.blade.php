@@ -113,8 +113,12 @@ new class extends Component
                 </x-dropdown>
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
+            <!-- Hamburger and Mobile Actions -->
+            <div class="-me-2 flex items-center sm:hidden gap-2">
+                <div class="mr-1">
+                    <livewire:system-status />
+                </div>
+                <!-- Hamburger -->
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -128,28 +132,36 @@ new class extends Component
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('directory')" :active="request()->routeIs('directory')" wire:navigate>
+            <x-responsive-nav-link :href="route('directory')" :active="request()->routeIs('directory')" wire:navigate class="flex items-center gap-2">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 {{ __('Directorio') }}
             </x-responsive-nav-link>
+            
             @if(auth()->user()->role === 'admin')
-                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" wire:navigate>
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" wire:navigate class="flex items-center gap-2">
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     {{ __('Panel Admin') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')" wire:navigate>
+                <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')" wire:navigate class="flex items-center gap-2">
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     {{ __('Gestión de Reportes') }}
                 </x-responsive-nav-link>
             @else
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate class="flex items-center gap-2">
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     {{ __('Mi Panel (Líder)') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('reports.create')" :active="request()->routeIs('reports.create')" wire:navigate>
+                <x-responsive-nav-link :href="route('reports.create')" :active="request()->routeIs('reports.create')" wire:navigate class="flex items-center gap-2">
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     {{ __('Reportar') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('members.index')" :active="request()->routeIs('members.index')" wire:navigate>
+                <x-responsive-nav-link :href="route('members.index')" :active="request()->routeIs('members.index')" wire:navigate class="flex items-center gap-2">
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     {{ __('Mi Célula') }}
                 </x-responsive-nav-link>
             @endif
-            <x-responsive-nav-link :href="route('chat.index')" :active="request()->routeIs('chat.index')" wire:navigate>
+            <x-responsive-nav-link :href="route('chat.index')" :active="request()->routeIs('chat.index')" wire:navigate class="flex items-center gap-2">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                 <div class="relative inline-flex items-center">
                     {{ __('Chat Global') }}
                     @if($unreadCount > 0)
@@ -161,10 +173,7 @@ new class extends Component
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4 mb-3">
-                <livewire:system-status />
-            </div>
-            <div class="px-4 flex items-center gap-3 border-t border-gray-100 pt-3">
+            <div class="px-4 flex items-center gap-3 pt-1">
                 @if(auth()->user()->photo_path)
                     <img class="h-10 w-10 object-cover rounded-full border border-gray-200" src="{{ asset('storage/' . auth()->user()->photo_path) }}" alt="{{ auth()->user()->name }}">
                 @else

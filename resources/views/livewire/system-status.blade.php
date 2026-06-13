@@ -14,9 +14,13 @@ new class extends Component {
     }
 }; ?>
 
-<div class="relative flex items-center group cursor-pointer" x-data="{ showTooltip: false }" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+<div class="relative flex items-center" x-data="{ showTooltip: false }" @mouseleave="showTooltip = false">
     <!-- Indicador Visual -->
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md">
+    <button 
+        @mouseenter="showTooltip = true"
+        @click="showTooltip = !showTooltip"
+        class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none"
+    >
         <span class="relative flex h-3 w-3">
             @if($status === 'red')
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -34,7 +38,7 @@ new class extends Component {
             @else Operativo
             @endif
         </span>
-    </div>
+    </button>
 
     <!-- Tooltip Flotante -->
     <div 
