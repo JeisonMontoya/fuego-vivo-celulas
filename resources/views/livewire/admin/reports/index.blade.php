@@ -27,7 +27,9 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function with(): array
     {
-        $query = Report::query()->with(['user.cell']);
+        // Se removió 'user.cell' ya que la tabla no muestra información de la célula,
+        // evitando cientos de queries N+1 innecesarios o joins inútiles.
+        $query = Report::query()->with(['user']);
 
         // Filtro por Líder
         if ($this->searchLeader) {
@@ -56,8 +58,11 @@ new #[Layout('layouts.app')] class extends Component {
             $query->where('score', $this->filterCompliance);
         }
 
-        // Listado de sectores únicos para el select
-        $sectors = User::whereNotNull('sector')->distinct()->pluck('sector');
+        // Listado de sectores únicos para el select - CACHEADO
+        // Esta es una tabla estática que rara vez cambia, la cacheamos por 24 horas.
+        $sectors = \Illuminate\Support\Facades\Cache::remember('admin.sectors.list', now()->addHours(24), function () {
+            return User::whereNotNull('sector')->distinct()->pluck('sector');
+        });
 
         return [
             'reports' => $query->latest('meeting_date')->paginate(15),

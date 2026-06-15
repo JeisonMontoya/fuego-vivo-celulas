@@ -9,7 +9,9 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function mount(Report $report)
     {
-        $this->report = $report->load(['user.cell', 'attendees']);
+        // Se removió 'user.cell' porque 'cell' nunca se imprime en esta vista.
+        // Solo necesitamos 'user' y 'attendees', ahorrando una consulta adicional.
+        $this->report = $report->load(['user', 'attendees']);
     }
 }; ?>
 

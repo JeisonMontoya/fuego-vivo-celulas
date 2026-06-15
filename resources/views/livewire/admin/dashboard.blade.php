@@ -35,19 +35,34 @@ new #[Layout('layouts.app')] class extends Component {
     {
         $this->pendingUsers = User::where('status', 'pending')->with('cell')->get();
         
-        $this->leaders = User::where('role', 'leader')
-            ->where('status', 'active')
-            ->with('cell')
-            ->get()
-            ->sortByDesc(function ($l) {
-                return $l->rating * 1000 + $l->compliance_percentage;
-            })->values();
+        $this->leaders = \Illuminate\Support\Facades\Cache::remember('admin.dashboard.leaders', now()->addMinutes(15), function() {
+            return User::where('role', 'leader')
+                ->where('status', 'active')
+                ->with('cell')
+                ->get()
+                ->sortByDesc(function ($l) {
+                    return $l->rating * 1000 + $l->compliance_percentage;
+                })->values();
+        });
 
-        $this->activeCellsCount = Cell::where('status', 'active')->count();
+        $this->activeCellsCount = \Illuminate\Support\Facades\Cache::remember('admin.dashboard.cells_count', now()->addMinutes(30), function() {
+            return Cell::where('status', 'active')->count();
+        });
         
-        $this->totalTithes = Report::sum('tithes');
-        $this->totalOfferings = Report::sum('offerings');
-        $this->totalAttendance = Report::sum('attendance_count') + Report::sum('guests_count');
+        // Optimización: Unificamos 4 consultas separadas de SUM() en 1 sola consulta SQL.
+        // Además, agregamos una capa de caché de 15 minutos para que el panel cargue instantáneo.
+        $stats = \Illuminate\Support\Facades\Cache::remember('admin.dashboard.report_stats', now()->addMinutes(15), function() {
+            return Report::selectRaw('
+                SUM(tithes) as tithes, 
+                SUM(offerings) as offerings, 
+                SUM(attendance_count) as attendance, 
+                SUM(guests_count) as guests
+            ')->first();
+        });
+
+        $this->totalTithes = $stats->tithes ?? 0;
+        $this->totalOfferings = $stats->offerings ?? 0;
+        $this->totalAttendance = ($stats->attendance ?? 0) + ($stats->guests ?? 0);
     }
 
     public function approve($userId)
