@@ -44,9 +44,8 @@
         $totalLeaders = $allLeaders->count();
 
         // Estadísticas
-        $totalAsistentes = $reports->sum('attendance_count') + $reports->sum('guests_count');
-        $promedioAsistencia = $reports->count() > 0 ? round($totalAsistentes / $reports->count()) : 0;
-        $totalInvitados = $reports->sum('guests_count');
+        $totalAsistentes = $reports->sum('attendance_count');
+        $promedioAsistencia = $reports->count() > 0 ? round($reports->avg('attendance_count')) : 0;
         
         // Próxima Fecha
         $daysMap = [
@@ -214,9 +213,6 @@
                     <div class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">Promedio Semanal</div>
                     <div class="flex justify-between items-end">
                         <span class="text-4xl font-black text-gray-900 leading-none">{{ $promedioAsistencia }}</span>
-                        <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md border border-orange-100">
-                            +{{ $totalInvitados }} nuevos
-                        </span>
                     </div>
                 </div>
             </div>
@@ -252,14 +248,9 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <div class="flex justify-center gap-2">
-                                                <span class="px-2.5 py-1 inline-flex text-xs font-bold rounded bg-blue-50 text-blue-700 border border-blue-100" title="Regulares">
+                                                <span class="px-2.5 py-1 inline-flex text-xs font-bold rounded bg-blue-50 text-blue-700 border border-blue-100" title="Asistencia">
                                                     {{ $report->attendance_count }}
                                                 </span>
-                                                @if($report->guests_count > 0)
-                                                    <span class="px-2.5 py-1 inline-flex text-xs font-bold rounded bg-green-50 text-green-700 border border-green-100" title="Nuevos">
-                                                        +{{ $report->guests_count }}
-                                                    </span>
-                                                @endif
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">

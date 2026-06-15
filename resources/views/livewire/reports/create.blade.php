@@ -19,8 +19,7 @@ new #[Layout('layouts.app')] class extends Component {
     #[Validate('required|numeric|min:0')]
     public $offerings = 0;
 
-    #[Validate('required|integer|min:0')]
-    public $guests_count = 0;
+    // guests_count se eliminó porque los invitados ahora se registran exclusivamente desde el módulo de Miembros.
 
     #[Validate('nullable|string|max:1000')]
     public $notes = '';
@@ -43,8 +42,8 @@ new #[Layout('layouts.app')] class extends Component {
         
         $attendance_count = count($this->selected_members);
 
-        if ($attendance_count + $this->guests_count === 0) {
-            $this->addError('guests_count', 'La asistencia total (miembros + visitantes) no puede ser 0.');
+        if ($attendance_count === 0) {
+            $this->addError('selected_members', 'Debes marcar al menos un asistente en la lista.');
             return;
         }
 
@@ -68,7 +67,7 @@ new #[Layout('layouts.app')] class extends Component {
         $report = new Report([
             'meeting_date' => $this->meeting_date,
             'attendance_count' => $attendance_count,
-            'guests_count' => $this->guests_count,
+            'guests_count' => 0, // Obsoleto, fijado a 0
             'notes' => $this->notes,
             'host_name' => $this->host_name,
             'tithes' => $this->tithes,
@@ -156,20 +155,14 @@ new #[Layout('layouts.app')] class extends Component {
                             @else
                                 <div class="p-4 bg-yellow-50 text-yellow-800 rounded-md text-sm border border-yellow-200">
                                     No tienes miembros registrados en tu célula. 
-                                    <a href="{{ route('members.index') }}" class="font-bold underline" wire:navigate>Ve a "Mis Miembros"</a> para añadirlos antes de enviar el reporte, o repórtalos abajo como Invitados Nuevos.
+                                    <a href="{{ route('members.index') }}" class="font-bold underline" wire:navigate>Ve a "Mis Miembros"</a> para añadirlos antes de poder enviar un reporte.
                                 </div>
                             @endif
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <!-- Invitados Nuevos -->
-                            <div>
-                                <x-input-label for="guests_count" value="Visitantes Extras (No registrados) *" />
-                                <x-text-input wire:model="guests_count" id="guests_count" type="number" min="0" class="mt-1 block w-full" required />
-                                <p class="text-xs text-gray-500 mt-1">Personas que asistieron pero aún no están añadidas a tu lista de miembros.</p>
-                                <x-input-error :messages="$errors->get('guests_count')" class="mt-2 text-red-600 font-bold" />
-                            </div>
-                        </div>
+                        @error('selected_members')
+                            <p class="text-sm text-red-600 font-bold mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Sección 3: Observaciones -->

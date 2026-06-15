@@ -184,16 +184,9 @@ new #[Layout('layouts.app')] class extends Component {
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <div class="flex justify-center gap-2">
-                                            <span class="px-3 py-1 inline-flex text-sm leading-5 font-bold rounded-full bg-blue-100 text-blue-800" title="Regulares">
-                                                {{ $report->attendance_count }}
-                                            </span>
-                                            @if($report->guests_count > 0)
-                                                <span class="px-3 py-1 inline-flex text-sm leading-5 font-bold rounded-full bg-green-100 text-green-800" title="Visitantes">
-                                                    +{{ $report->guests_count }}
-                                                </span>
-                                            @endif
-                                        </div>
+                                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-bold rounded-full bg-blue-100 text-blue-800">
+                                            {{ $report->attendance_count }}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                                         <div class="text-gray-900"><span class="text-gray-500 text-xs mr-1">D</span>${{ number_format($report->tithes, 0) }}</div>
