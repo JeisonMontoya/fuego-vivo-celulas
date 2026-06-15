@@ -43,6 +43,11 @@ new #[Layout('layouts.app')] class extends Component {
         
         $attendance_count = count($this->selected_members);
 
+        if ($attendance_count + $this->guests_count === 0) {
+            $this->addError('guests_count', 'La asistencia total (miembros + visitantes) no puede ser 0.');
+            return;
+        }
+
         // Scoring algorithm (El plazo es hasta el final del día siguiente a la reunión)
         $deadlineDay = \Carbon\Carbon::parse($this->meeting_date)->addDay()->endOfDay();
         $now = now();
@@ -159,10 +164,10 @@ new #[Layout('layouts.app')] class extends Component {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <!-- Invitados Nuevos -->
                             <div>
-                                <x-input-label for="guests_count" value="Cantidad de Invitados Nuevos *" />
+                                <x-input-label for="guests_count" value="Visitantes Extras (No registrados) *" />
                                 <x-text-input wire:model="guests_count" id="guests_count" type="number" min="0" class="mt-1 block w-full" required />
-                                <p class="text-xs text-gray-500 mt-1">Personas que visitan la célula por primera vez.</p>
-                                <x-input-error :messages="$errors->get('guests_count')" class="mt-2" />
+                                <p class="text-xs text-gray-500 mt-1">Personas que asistieron pero aún no están añadidas a tu lista de miembros.</p>
+                                <x-input-error :messages="$errors->get('guests_count')" class="mt-2 text-red-600 font-bold" />
                             </div>
                         </div>
                     </div>

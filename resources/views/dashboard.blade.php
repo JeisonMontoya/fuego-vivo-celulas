@@ -44,8 +44,8 @@
         $totalLeaders = $allLeaders->count();
 
         // Estadísticas
-        $totalAsistentes = $reports->sum('attendance_count');
-        $promedioAsistencia = $reports->count() > 0 ? round($reports->avg('attendance_count')) : 0;
+        $totalAsistentes = $reports->sum('attendance_count') + $reports->sum('guests_count');
+        $promedioAsistencia = $reports->count() > 0 ? round($totalAsistentes / $reports->count()) : 0;
         $totalInvitados = $reports->sum('guests_count');
         
         // Próxima Fecha

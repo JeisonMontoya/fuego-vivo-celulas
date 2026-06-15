@@ -47,7 +47,7 @@ new #[Layout('layouts.app')] class extends Component {
         
         $this->totalTithes = Report::sum('tithes');
         $this->totalOfferings = Report::sum('offerings');
-        $this->totalAttendance = Report::sum('attendance_count');
+        $this->totalAttendance = Report::sum('attendance_count') + Report::sum('guests_count');
     }
 
     public function approve($userId)

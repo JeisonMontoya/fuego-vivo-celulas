@@ -13,10 +13,17 @@ new #[Layout('layouts.guest')] class extends Component {
         $logout();
         $this->redirect('/', navigate: true);
     }
+
+    public function checkStatus()
+    {
+        if (auth()->user()->fresh()->status === 'active') {
+            $this->redirect(route('dashboard'), navigate: true);
+        }
+    }
 }
 ?>
 
-<div>
+<div wire:poll.5s="checkStatus">
     <div class="mb-4 text-center">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-50 mb-4">
             <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

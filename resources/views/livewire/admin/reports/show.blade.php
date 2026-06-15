@@ -108,11 +108,11 @@ new #[Layout('layouts.app')] class extends Component {
                         Listado de Asistencia
                     </h3>
                     <span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-3 py-1 rounded-full">
-                        Total: {{ $report->attendance_count }}
+                        Total: {{ $report->attendance_count + $report->guests_count }}
                     </span>
                 </div>
                 
-                @if($report->attendees->count() > 0)
+                @if($report->attendees->count() > 0 || $report->guests_count > 0)
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-gray-200">
                         @foreach($report->attendees as $attendee)
                             <div class="p-4 border-b border-r border-gray-100 flex items-center gap-3">
@@ -133,6 +133,20 @@ new #[Layout('layouts.app')] class extends Component {
                                 </div>
                             </div>
                         @endforeach
+                        
+                        @if($report->guests_count > 0)
+                            <div class="p-4 border-b border-r border-gray-100 flex items-center gap-3">
+                                <div class="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 font-bold shrink-0">
+                                    +{{ $report->guests_count }}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-bold text-gray-900">Visitantes Extras</div>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 mt-1">
+                                        No Registrados
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @else
                     <div class="p-12 text-center text-gray-500">
@@ -140,10 +154,10 @@ new #[Layout('layouts.app')] class extends Component {
                     </div>
                 @endif
                 
-                @if($report->observations)
+                @if($report->notes)
                     <div class="p-6 bg-yellow-50 border-t border-yellow-100">
                         <h4 class="text-sm font-bold text-yellow-800 mb-2">Observaciones Adicionales</h4>
-                        <p class="text-sm text-yellow-900">{{ $report->observations }}</p>
+                        <p class="text-sm text-yellow-900">{{ $report->notes }}</p>
                     </div>
                 @endif
             </div>
