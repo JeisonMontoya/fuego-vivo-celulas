@@ -40,6 +40,12 @@ new #[Layout('layouts.app')] class extends Component {
 
         $user = auth()->user();
         
+        // Evitar reportes duplicados para la misma fecha y usuario
+        if (Report::where('user_id', $user->id)->whereDate('meeting_date', $this->meeting_date)->exists()) {
+            $this->addError('meeting_date', 'Ya has enviado un reporte para esta fecha.');
+            return;
+        }
+        
         $attendance_count = count($this->selected_members);
 
         if ($attendance_count === 0) {
@@ -179,8 +185,9 @@ new #[Layout('layouts.app')] class extends Component {
                         <a href="{{ route('dashboard') }}" class="text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500" wire:navigate>
                             Cancelar
                         </a>
-                        <x-primary-button>
-                            Enviar Reporte
+                        <x-primary-button wire:loading.attr="disabled">
+                            <span wire:loading.remove>Enviar Reporte</span>
+                            <span wire:loading>Enviando...</span>
                         </x-primary-button>
                     </div>
                 </form>
