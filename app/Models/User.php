@@ -3,17 +3,19 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The model's default values for attributes.
@@ -92,21 +94,21 @@ class User extends Authenticatable
     {
         $startDate = $this->entry_date ?? $this->created_at;
         $expectedReports = 0;
-        
+
         $cell = $this->cell;
         if ($cell && $cell->meeting_day) {
             $daysMap = [
-                'Lunes' => \Carbon\Carbon::MONDAY, 'Martes' => \Carbon\Carbon::TUESDAY, 'Miércoles' => \Carbon\Carbon::WEDNESDAY,
-                'Jueves' => \Carbon\Carbon::THURSDAY, 'Viernes' => \Carbon\Carbon::FRIDAY, 'Sábado' => \Carbon\Carbon::SATURDAY, 'Domingo' => \Carbon\Carbon::SUNDAY,
+                'Lunes' => Carbon::MONDAY, 'Martes' => Carbon::TUESDAY, 'Miércoles' => Carbon::WEDNESDAY,
+                'Jueves' => Carbon::THURSDAY, 'Viernes' => Carbon::FRIDAY, 'Sábado' => Carbon::SATURDAY, 'Domingo' => Carbon::SUNDAY,
             ];
-            
-            $dayOfWeek = $daysMap[$cell->meeting_day] ?? \Carbon\Carbon::FRIDAY;
+
+            $dayOfWeek = $daysMap[$cell->meeting_day] ?? Carbon::FRIDAY;
             $currentDate = clone $startDate;
-            
-            if (!$currentDate->isDayOfWeek($dayOfWeek)) {
+
+            if (! $currentDate->isDayOfWeek($dayOfWeek)) {
                 $currentDate->next($dayOfWeek);
             }
-            
+
             while (true) {
                 $deadline = $currentDate->clone()->addDay()->endOfDay();
                 if (now()->isAfter($deadline)) {
