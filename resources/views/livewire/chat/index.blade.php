@@ -227,11 +227,6 @@ new #[Layout('layouts.app')] class extends Component {
             height: 100% !important;
             height: 100dvh !important;
         }
-        @supports (-webkit-touch-callout: none) {
-            body, html {
-                height: -webkit-fill-available !important;
-            }
-        }
         /* El div principal de layouts.app */
         .min-h-screen {
             height: 100% !important;
@@ -240,11 +235,6 @@ new #[Layout('layouts.app')] class extends Component {
             display: flex !important;
             flex-direction: column !important;
             overflow: hidden !important;
-        }
-        @supports (-webkit-touch-callout: none) {
-            .min-h-screen {
-                height: -webkit-fill-available !important;
-            }
         }
         /* El contenedor main de layouts.app */
         main {
@@ -464,7 +454,7 @@ new #[Layout('layouts.app')] class extends Component {
                         wire:model="body" 
                         x-on:keydown.enter.prevent="if(!$event.shiftKey) $wire.sendMessage()"
                         placeholder="Mensaje" 
-                        class="w-full border-none focus:ring-0 bg-transparent resize-none max-h-32 py-2.5 px-0 text-[15px] leading-relaxed" 
+                        class="w-full border-none focus:ring-0 bg-transparent resize-none max-h-32 py-2.5 px-0 text-base leading-relaxed" 
                         rows="1"
                         style="overflow-y: hidden;"
                         x-data="{ resize() { 
