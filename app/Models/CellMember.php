@@ -38,4 +38,15 @@ class CellMember extends Model
     {
         return $this->belongsToMany(Report::class, 'report_attendances');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($member) {
+            \Illuminate\Support\Facades\Cache::forget('admin.dashboard.members_stats');
+        });
+
+        static::deleted(function ($member) {
+            \Illuminate\Support\Facades\Cache::forget('admin.dashboard.members_stats');
+        });
+    }
 }

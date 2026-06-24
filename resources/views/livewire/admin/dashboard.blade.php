@@ -13,6 +13,8 @@ new #[Layout('layouts.app')] class extends Component {
     public $totalTithes = 0;
     public $totalOfferings = 0;
     public $totalAttendance = 0;
+    public $newMembers = 0;
+    public $recurrentMembers = 0;
     public $activeCellsCount = 0;
 
     // Estado del Sistema
@@ -54,14 +56,23 @@ new #[Layout('layouts.app')] class extends Component {
         $stats = \Illuminate\Support\Facades\Cache::remember('admin.dashboard.report_stats', now()->addMinutes(15), function() {
             return Report::selectRaw('
                 SUM(tithes) as tithes, 
-                SUM(offerings) as offerings, 
-                SUM(attendance_count) as attendance
+                SUM(offerings) as offerings
+            ')->first();
+        });
+
+        $membersStats = \Illuminate\Support\Facades\Cache::remember('admin.dashboard.members_stats', now()->addMinutes(15), function() {
+            return \App\Models\CellMember::selectRaw('
+                COUNT(*) as total,
+                SUM(is_new = 1) as new_members,
+                SUM(is_new = 0) as recurrent_members
             ')->first();
         });
 
         $this->totalTithes = $stats->tithes ?? 0;
         $this->totalOfferings = $stats->offerings ?? 0;
-        $this->totalAttendance = $stats->attendance ?? 0;
+        $this->totalAttendance = $membersStats->total ?? 0;
+        $this->newMembers = $membersStats->new_members ?? 0;
+        $this->recurrentMembers = $membersStats->recurrent_members ?? 0;
     }
 
     public function approve($userId)
@@ -179,7 +190,11 @@ new #[Layout('layouts.app')] class extends Component {
                 <div class="relative overflow-hidden rounded-lg bg-blue-500 text-white shadow-md transition-transform hover:scale-[1.02] pb-2">
                     <div class="p-4 relative z-10">
                         <h3 class="text-3xl font-black">{{ number_format($totalAttendance, 0) }}</h3>
-                        <p class="text-blue-100 font-medium text-sm mt-1">Asistencia Global</p>
+                        <p class="text-blue-100 font-medium text-sm mt-1">Asistencia Global (Miembros)</p>
+                        <div class="mt-2 text-xs text-blue-200 flex gap-2 font-bold">
+                            <span class="bg-blue-600 px-2 py-0.5 rounded">{{ number_format($newMembers, 0) }} Nuevos</span>
+                            <span class="bg-blue-700 px-2 py-0.5 rounded">{{ number_format($recurrentMembers, 0) }} Recurrentes</span>
+                        </div>
                     </div>
                     <svg class="absolute -right-2 -bottom-4 w-24 h-24 text-black opacity-10 transform -rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>

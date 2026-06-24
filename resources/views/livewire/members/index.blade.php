@@ -64,6 +64,16 @@ new #[Layout('layouts.app')] class extends Component {
         session()->flash('status', 'Miembro guardado con éxito.');
     }
 
+    public function deleteMember($id)
+    {
+        $member = auth()->user()->cell->members()->find($id);
+        if ($member) {
+            $member->delete();
+            $this->loadMembers();
+            session()->flash('status', 'Miembro borrado con éxito.');
+        }
+    }
+
     public function toggleForm()
     {
         $this->showForm = !$this->showForm;
@@ -161,6 +171,7 @@ new #[Layout('layouts.app')] class extends Component {
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progreso</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ministerio</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -185,6 +196,11 @@ new #[Layout('layouts.app')] class extends Component {
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $member->ministry ?: '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button wire:click="deleteMember({{ $member->id }})" wire:confirm="¿Estás seguro de borrar a este miembro de tu célula?" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
+                                            Borrar
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
