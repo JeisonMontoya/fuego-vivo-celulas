@@ -43,6 +43,10 @@ Volt::route('chat', 'chat.index')
     ->middleware(['auth'])
     ->name('chat.index');
 
+Volt::route('biblioteca', 'biblioteca')
+    ->middleware(['auth'])
+    ->name('biblioteca');
+
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
