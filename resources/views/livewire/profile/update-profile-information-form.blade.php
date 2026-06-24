@@ -14,6 +14,7 @@ new class extends Component
 
     public string $name = '';
     public string $email = '';
+    public string $timezone = 'America/Bogota';
     public $photo;
 
     /**
@@ -23,6 +24,7 @@ new class extends Component
     {
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->timezone = Auth::user()->timezone ?? 'America/Bogota';
     }
 
     /**
@@ -36,6 +38,7 @@ new class extends Component
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'photo' => [Rule::requiredIf(! $user->photo_path), 'nullable', 'image', 'max:2048'],
+            'timezone' => ['required', 'string', 'max:50'],
         ], [
             'photo.required' => 'La foto de perfil es obligatoria.'
         ]);
@@ -43,6 +46,7 @@ new class extends Component
         $user->fill([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'timezone' => $validated['timezone'],
         ]);
 
         if ($this->photo) {
@@ -154,6 +158,22 @@ new class extends Component
                     @endif
                 </div>
             @endif
+        </div>
+
+        <div>
+            <x-input-label for="timezone" :value="__('Zona Horaria')" />
+            <select wire:model="timezone" id="timezone" name="timezone" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                <option value="America/Bogota">Colombia (Bogotá)</option>
+                <option value="America/Mexico_City">México (Ciudad de México)</option>
+                <option value="America/Toronto">Canadá (Toronto - Este)</option>
+                <option value="America/Vancouver">Canadá (Vancouver - Oeste)</option>
+                <option value="America/New_York">EE.UU. (Nueva York - Este)</option>
+                <option value="America/Chicago">EE.UU. (Chicago - Centro)</option>
+                <option value="America/Denver">EE.UU. (Denver - Montaña)</option>
+                <option value="America/Los_Angeles">EE.UU. (Los Ángeles - Pacífico)</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">Importante para que las fechas límite de tus reportes se calculen correctamente según tu país.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('timezone')" />
         </div>
 
         <div class="flex items-center gap-4">

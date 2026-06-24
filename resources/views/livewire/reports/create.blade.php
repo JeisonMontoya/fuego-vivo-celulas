@@ -54,8 +54,9 @@ new #[Layout('layouts.app')] class extends Component {
         }
 
         // Scoring algorithm (El plazo es hasta el final del día siguiente a la reunión)
-        $deadlineDay = \Carbon\Carbon::parse($this->meeting_date)->addDay()->endOfDay();
-        $now = now();
+        $tz = auth()->user()->timezone ?? config('app.timezone');
+        $deadlineDay = \Carbon\Carbon::parse($this->meeting_date, $tz)->addDay()->endOfDay();
+        $now = now($tz);
 
         if ($now->lessThanOrEqualTo($deadlineDay)) {
             $daysLate = 0;

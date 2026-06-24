@@ -47,6 +47,7 @@ class User extends Authenticatable
         'supervisor_id',
         'role',
         'status',
+        'timezone',
     ];
 
     /**
@@ -92,7 +93,8 @@ class User extends Authenticatable
 
     public function getExpectedReportsCount(): int
     {
-        $startDate = $this->entry_date ?? $this->created_at;
+        $tz = $this->timezone ?? config('app.timezone');
+        $startDate = Carbon::parse($this->entry_date ?? $this->created_at, $tz);
         $expectedReports = 0;
 
         $cell = $this->cell;
@@ -111,7 +113,7 @@ class User extends Authenticatable
 
             while (true) {
                 $deadline = $currentDate->clone()->addDay()->endOfDay();
-                if (now()->isAfter($deadline)) {
+                if (now($tz)->isAfter($deadline)) {
                     $expectedReports++;
                     $currentDate->addWeek();
                 } else {
@@ -119,7 +121,7 @@ class User extends Authenticatable
                 }
             }
         } else {
-            $expectedReports = floor($startDate->diffInDays(now()) / 7);
+            $expectedReports = floor($startDate->diffInDays(now($tz)) / 7);
         }
 
         return (int) $expectedReports;
