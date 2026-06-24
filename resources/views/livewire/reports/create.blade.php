@@ -87,6 +87,17 @@ new #[Layout('layouts.app')] class extends Component {
         // Sync the attended members
         $report->attendees()->sync($this->selected_members);
 
+        // Si el miembro asistió a 2 reuniones o más, deja de ser nuevo
+        foreach ($this->selected_members as $memberId) {
+            $member = CellMember::find($memberId);
+            if ($member && $member->is_new) {
+                if ($member->reports()->count() >= 2) {
+                    $member->is_new = false;
+                    $member->save();
+                }
+            }
+        }
+
         // Recalculate metrics
         $user->recalculateMetrics();
 
