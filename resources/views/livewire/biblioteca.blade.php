@@ -124,7 +124,7 @@ new #[Layout('layouts.app')] class extends Component {
                 @forelse($books as $book)
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition cursor-pointer relative group flex flex-col" 
                          @click="openBook('{{ asset('storage/' . $book->file_path) }}', '{{ addslashes($book->title) }}')">
-                        <div class="aspect-[2/3] bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center p-4 text-center">
+                        <div class="bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center p-4 text-center" style="aspect-ratio: 2/3;">
                             <svg class="w-12 h-12 text-indigo-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
                         <div class="p-3 flex-1 flex flex-col justify-center">
@@ -170,7 +170,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </button>
                     
                     <!-- Lector EPUB (Fix del alto) -->
-                    <div id="viewer" class="w-full h-[65vh] md:h-[75vh] mx-2 md:mx-4 border border-gray-100 rounded-lg shadow-inner overflow-hidden relative bg-[#fdfdfd]"></div>
+                    <div id="viewer" class="w-full mx-2 md:mx-4 border border-gray-100 rounded-lg shadow-inner overflow-hidden relative" style="height: 70vh; min-height: 500px; background-color: #fdfdfd;"></div>
 
                     <button @click="nextPage" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 z-10 relative">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
