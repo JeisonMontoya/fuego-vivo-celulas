@@ -19,6 +19,9 @@ new #[Layout('layouts.app')] class extends Component {
     
     #[Validate('required|file|mimes:epub')]
     public $file;
+
+    #[Validate('nullable|image|max:2048')]
+    public $cover;
     
     public $showUploadForm = false;
 
@@ -46,14 +49,20 @@ new #[Layout('layouts.app')] class extends Component {
         $this->validate();
 
         $path = $this->file->store('books', 'public');
+        
+        $coverPath = null;
+        if ($this->cover) {
+            $coverPath = $this->cover->store('book-covers', 'public');
+        }
 
         Book::create([
             'title' => $this->title,
             'author' => $this->author,
             'file_path' => $path,
+            'cover_path' => $coverPath,
         ]);
 
-        $this->reset(['title', 'author', 'file', 'showUploadForm']);
+        $this->reset(['title', 'author', 'file', 'cover', 'showUploadForm']);
         $this->loadBooks();
         session()->flash('status', 'Libro guardado con éxito.');
     }
@@ -66,6 +75,9 @@ new #[Layout('layouts.app')] class extends Component {
         $book = Book::find($id);
         if($book) {
             Storage::disk('public')->delete($book->file_path);
+            if ($book->cover_path) {
+                Storage::disk('public')->delete($book->cover_path);
+            }
             $book->delete();
             $this->loadBooks();
         }
@@ -106,15 +118,21 @@ new #[Layout('layouts.app')] class extends Component {
                                 <x-input-label for="author" value="Autor (Opcional)" />
                                 <x-text-input wire:model="author" id="author" type="text" class="mt-1 block w-full" />
                             </div>
-                            <div class="md:col-span-2">
+                            <div>
                                 <x-input-label for="file" value="Archivo .epub *" />
                                 <input type="file" wire:model="file" id="file" accept=".epub" class="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm" required>
-                                <div wire:loading wire:target="file" class="text-sm text-indigo-600 mt-2">Subiendo archivo...</div>
+                                <div wire:loading wire:target="file" class="text-sm text-indigo-600 mt-2">Subiendo archivo epub...</div>
                                 <x-input-error :messages="$errors->get('file')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="cover" value="Portada del Libro (Opcional) - JPG/PNG" />
+                                <input type="file" wire:model="cover" id="cover" accept="image/jpeg, image/png, image/webp" class="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm">
+                                <div wire:loading wire:target="cover" class="text-sm text-indigo-600 mt-2">Subiendo imagen...</div>
+                                <x-input-error :messages="$errors->get('cover')" class="mt-2" />
                             </div>
                         </div>
                         <div class="flex justify-end mt-4">
-                            <x-primary-button wire:loading.attr="disabled" wire:target="saveBook, file">Guardar Libro</x-primary-button>
+                            <x-primary-button wire:loading.attr="disabled" wire:target="saveBook, file, cover">Guardar Libro</x-primary-button>
                         </div>
                     </form>
                 </div>
@@ -124,9 +142,17 @@ new #[Layout('layouts.app')] class extends Component {
                 @forelse($books as $book)
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition cursor-pointer relative group flex flex-col" 
                          @click="openBook('{{ asset('storage/' . $book->file_path) }}', '{{ addslashes($book->title) }}', {{ $book->id }})">
-                        <div class="bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center p-4 text-center" style="aspect-ratio: 2/3;">
-                            <svg class="w-12 h-12 text-indigo-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                        </div>
+                        
+                        @if($book->cover_path)
+                            <div class="w-full bg-gray-100 flex items-center justify-center overflow-hidden" style="aspect-ratio: 2/3;">
+                                <img src="{{ asset('storage/' . $book->cover_path) }}" alt="{{ $book->title }}" class="w-full h-full object-cover">
+                            </div>
+                        @else
+                            <div class="bg-gradient-to-br from-indigo-100 to-purple-100 flex flex-col items-center justify-center p-4 text-center" style="aspect-ratio: 2/3;">
+                                <svg class="w-12 h-12 text-indigo-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            </div>
+                        @endif
+
                         <div class="p-3 flex-1 flex flex-col justify-center">
                             <h3 class="font-bold text-gray-800 text-sm line-clamp-2 leading-tight">{{ $book->title }}</h3>
                             <p class="text-xs text-gray-500 mt-1 line-clamp-1">{{ $book->author }}</p>
@@ -278,9 +304,24 @@ new #[Layout('layouts.app')] class extends Component {
                             flow: "paginated"
                         });
 
-                        // Registrar los temas claro/oscuro para el iFrame de epub.js
-                        this.rendition.themes.register("light", { "body": { "background": "transparent", "color": "#111827" }});
-                        this.rendition.themes.register("dark", { "body": { "background": "transparent", "color": "#e5e7eb" }});
+                        // Registrar los temas con override extremo (!important) para forzar modo oscuro en libros con estilos propios
+                        this.rendition.themes.register("light", { 
+                            "body": { "background": "transparent !important", "color": "#111827 !important" },
+                            "p": { "color": "#111827 !important" },
+                            "div": { "color": "#111827 !important" },
+                            "span": { "color": "#111827 !important" }
+                        });
+                        
+                        this.rendition.themes.register("dark", { 
+                            "body": { "background": "transparent !important", "color": "#e5e7eb !important" },
+                            "p": { "color": "#e5e7eb !important" },
+                            "div": { "color": "#e5e7eb !important" },
+                            "span": { "color": "#e5e7eb !important" },
+                            "h1": { "color": "#e5e7eb !important" },
+                            "h2": { "color": "#e5e7eb !important" },
+                            "h3": { "color": "#e5e7eb !important" },
+                            "a": { "color": "#60a5fa !important" }
+                        });
                         
                         this.rendition.themes.select(this.darkMode ? "dark" : "light");
 
