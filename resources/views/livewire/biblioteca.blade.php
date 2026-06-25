@@ -184,7 +184,7 @@ new #[Layout('layouts.app')] class extends Component {
              x-transition x-cloak>
             
             <!-- Header del Lector -->
-            <div class="p-4 border-b flex justify-between items-center transition-colors duration-300" :class="darkMode ? 'bg-gray-900 border-gray-800 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-800'">
+            <div class="p-4 border-b flex justify-between items-center transition-colors duration-300 bg-gray-50 border-gray-200 text-gray-800">
                 <button @click="closeBook" class="inline-flex items-center gap-2 hover:opacity-75 transition font-medium text-sm focus:outline-none">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     <span class="hidden sm:inline">Volver a Biblioteca</span>
@@ -194,29 +194,24 @@ new #[Layout('layouts.app')] class extends Component {
                 <div class="text-sm font-bold truncate px-4 flex-1 text-center" x-text="bookTitle"></div>
                 
                 <div class="flex items-center gap-2">
-                    <!-- Modo Noche -->
-                    <button @click="toggleDarkMode" class="p-2 rounded-full transition" :class="darkMode ? 'hover:bg-gray-800 text-yellow-400' : 'hover:bg-gray-200 text-gray-600'" title="Modo Noche / Día">
-                        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                        <svg x-show="darkMode" style="display: none;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    </button>
                     <!-- Pantalla Completa -->
-                    <button @click="toggleFullscreen" class="p-2 rounded-full transition" :class="darkMode ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-200 text-gray-600'" title="Pantalla Completa">
+                    <button @click="toggleFullscreen" class="p-2 rounded-full transition hover:bg-gray-200 text-gray-600" title="Pantalla Completa">
                         <svg x-show="!isFullscreen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                         <svg x-show="isFullscreen" style="display: none;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 14h4v4M4 14l5 5M14 4h4v4m0-4l-5 5M4 10h4V6m-4 4l5-5m11 5h-4v4m4-4l-5 5"></path></svg>
                     </button>
                 </div>
             </div>
 
-            <div class="p-2 md:p-6 flex-1 flex flex-col transition-colors duration-300" :class="darkMode ? 'bg-[#121212]' : 'bg-white'">
+            <div class="p-2 md:p-6 flex-1 flex flex-col bg-white">
                 <div class="flex justify-between items-center flex-1">
-                    <button @click="prevPage" class="p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-indigo-500 z-10 relative" :class="darkMode ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                    <button @click="prevPage" class="p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-indigo-500 z-10 relative bg-gray-100 text-gray-700 hover:bg-gray-200">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
                     
                     <!-- Lector EPUB -->
                     <div id="viewer" class="w-full mx-2 md:mx-4 border-none overflow-hidden relative transition-colors duration-300" :style="isFullscreen ? 'height: 85vh; min-height: 100%;' : 'height: 70vh; min-height: 500px;'"></div>
 
-                    <button @click="nextPage" class="p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-indigo-500 z-10 relative" :class="darkMode ? 'bg-gray-800 text-gray-400 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                    <button @click="nextPage" class="p-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-indigo-500 z-10 relative bg-gray-100 text-gray-700 hover:bg-gray-200">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
                 </div>
@@ -236,16 +231,12 @@ new #[Layout('layouts.app')] class extends Component {
             bookId: null,
             book: null,
             rendition: null,
-            darkMode: false,
             isFullscreen: false,
 
             openBook(url, title, id) {
                 this.bookTitle = title;
                 this.bookId = id;
                 this.readerOpen = true;
-                
-                // Cargar preferencia de modo noche
-                this.darkMode = localStorage.getItem('epub-darkmode') === 'true';
                 
                 this.$nextTick(() => {
                     setTimeout(() => {
@@ -263,18 +254,8 @@ new #[Layout('layouts.app')] class extends Component {
                 document.getElementById("viewer").innerHTML = "";
             },
 
-            toggleDarkMode() {
-                this.darkMode = !this.darkMode;
-                localStorage.setItem('epub-darkmode', this.darkMode);
-                
-                if (this.rendition) {
-                    this.rendition.themes.select(this.darkMode ? "dark" : "light");
-                }
-            },
-
             toggleFullscreen() {
                 this.isFullscreen = !this.isFullscreen;
-                // Al cambiar a fullscreen o salir, obligar al visor a recalcular su tamaño
                 setTimeout(() => {
                     if (this.rendition) {
                         this.rendition.resize("100%", "100%");
@@ -304,28 +285,6 @@ new #[Layout('layouts.app')] class extends Component {
                             flow: "paginated"
                         });
 
-                        // Registrar los temas con override extremo (!important) para forzar modo oscuro en libros con estilos propios
-                        this.rendition.themes.register("light", { 
-                            "body": { "background": "transparent !important", "color": "#111827 !important" },
-                            "p": { "color": "#111827 !important" },
-                            "div": { "color": "#111827 !important" },
-                            "span": { "color": "#111827 !important" }
-                        });
-                        
-                        this.rendition.themes.register("dark", { 
-                            "body": { "background": "transparent !important", "color": "#e5e7eb !important" },
-                            "p": { "color": "#e5e7eb !important" },
-                            "div": { "color": "#e5e7eb !important" },
-                            "span": { "color": "#e5e7eb !important" },
-                            "h1": { "color": "#e5e7eb !important" },
-                            "h2": { "color": "#e5e7eb !important" },
-                            "h3": { "color": "#e5e7eb !important" },
-                            "a": { "color": "#60a5fa !important" }
-                        });
-                        
-                        this.rendition.themes.select(this.darkMode ? "dark" : "light");
-
-                        // Intentar recuperar el progreso de lectura
                         const savedLocation = localStorage.getItem('epub-location-' + this.bookId);
 
                         this.rendition.display(savedLocation || undefined).catch(err => {
@@ -333,7 +292,6 @@ new #[Layout('layouts.app')] class extends Component {
                             document.getElementById("viewer").innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-red-500 font-bold p-4 text-center">No se pudo renderizar el libro. Es posible que el archivo no sea un EPUB válido.</div>';
                         });
 
-                        // Guardar el progreso cada vez que el usuario cambia de página
                         this.rendition.on("relocated", (location) => {
                             localStorage.setItem('epub-location-' + this.bookId, location.start.cfi);
                         });
