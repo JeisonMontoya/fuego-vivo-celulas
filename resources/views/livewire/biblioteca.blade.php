@@ -196,10 +196,11 @@ new #[Layout('layouts.app')] class extends Component {
                 this.bookTitle = title;
                 this.readerOpen = true;
                 
-                // CRITICAL FIX: Ensure Alpine has rendered the div as visible BEFORE initializing ePub
-                // so ePub.js can correctly calculate the container's height and width.
+                // CRITICAL FIX: Ensure Alpine has rendered the div AND finished transitions
                 this.$nextTick(() => {
-                    this.initEpub(url);
+                    setTimeout(() => {
+                        this.initEpub(url);
+                    }, 300);
                 });
             },
 
@@ -212,32 +213,44 @@ new #[Layout('layouts.app')] class extends Component {
             },
 
             initEpub(url) {
-                document.getElementById("viewer").innerHTML = "";
+                document.getElementById("viewer").innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-gray-400">Cargando libro...</div>';
                 
                 this.book = ePub(url);
-                this.rendition = this.book.renderTo("viewer", {
-                    width: "100%",
-                    height: "100%",
-                    spread: "none",
-                    manager: "continuous",
-                    flow: "paginated"
-                });
+                
+                this.book.ready.then(() => {
+                    document.getElementById("viewer").innerHTML = ""; // Remover "Cargando libro..."
+                    
+                    this.rendition = this.book.renderTo("viewer", {
+                        width: "100%",
+                        height: "100%",
+                        spread: "none",
+                        manager: "continuous",
+                        flow: "paginated"
+                    });
 
-                this.rendition.display();
+                    this.rendition.display().catch(err => {
+                        console.error("Error al mostrar:", err);
+                        alert("Hubo un error interno al mostrar el libro.");
+                    });
 
-                this.rendition.on("keyup", (e) => {
-                    if ((e.keyCode || e.which) == 37) {
-                        this.book.package.metadata.direction === "rtl" ? this.nextPage() : this.prevPage();
-                    }
-                    if ((e.keyCode || e.which) == 39) {
-                        this.book.package.metadata.direction === "rtl" ? this.prevPage() : this.nextPage();
-                    }
-                });
+                    this.rendition.on("keyup", (e) => {
+                        if ((e.keyCode || e.which) == 37) {
+                            this.book.package.metadata.direction === "rtl" ? this.nextPage() : this.prevPage();
+                        }
+                        if ((e.keyCode || e.which) == 39) {
+                            this.book.package.metadata.direction === "rtl" ? this.prevPage() : this.nextPage();
+                        }
+                    });
 
-                window.addEventListener("resize", () => {
-                    if(this.rendition) {
-                        this.rendition.resize("100%", "100%");
-                    }
+                    window.addEventListener("resize", () => {
+                        if(this.rendition) {
+                            this.rendition.resize("100%", "100%");
+                        }
+                    });
+                }).catch(err => {
+                    console.error("Error al cargar libro:", err);
+                    alert("Error al cargar el archivo. Verifica que el libro exista o que el comando php artisan storage:link se haya ejecutado.");
+                    document.getElementById("viewer").innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-red-500 font-bold">Error 404: Libro no encontrado o corrupto.</div>';
                 });
             },
 
