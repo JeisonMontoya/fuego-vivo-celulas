@@ -6,6 +6,9 @@
             </h2>
             <div class="flex items-center gap-3">
                 @if(!auth()->user()->isAdmin())
+                    <a href="{{ route('cells.index') }}" class="inline-flex items-center px-4 py-2 bg-green-50 border border-green-200 rounded-md font-semibold text-xs text-green-700 uppercase tracking-widest shadow-sm hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150" wire:navigate>
+                        Mis Células
+                    </a>
                     <a href="{{ route('members.index') }}" class="inline-flex items-center px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-md font-semibold text-xs text-indigo-700 uppercase tracking-widest shadow-sm hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150" wire:navigate>
                         Mis Miembros
                     </a>

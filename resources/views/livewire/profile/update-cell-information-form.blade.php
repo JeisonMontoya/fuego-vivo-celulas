@@ -18,16 +18,34 @@ new class extends Component {
     #[Validate('required|string|date_format:H:i')]
     public string $meeting_time = '19:00';
 
+    public $cells;
+    public $selected_cell_id;
+
     public function mount()
     {
-        $this->cell = auth()->user()->cell;
+        $this->cells = auth()->user()->cells;
 
-        if ($this->cell) {
-            $this->name = $this->cell->name;
-            $this->address = $this->cell->address;
-            $this->meeting_day = $this->cell->meeting_day;
-            $this->meeting_time = date('H:i', strtotime($this->cell->meeting_time));
+        if ($this->cells->isNotEmpty()) {
+            $this->cell = $this->cells->first();
+            $this->selected_cell_id = $this->cell->id;
+            $this->loadCellData();
         }
+    }
+
+    public function updatedSelectedCellId($value)
+    {
+        $this->cell = $this->cells->firstWhere('id', $value);
+        if ($this->cell) {
+            $this->loadCellData();
+        }
+    }
+
+    protected function loadCellData()
+    {
+        $this->name = $this->cell->name;
+        $this->address = $this->cell->address;
+        $this->meeting_day = $this->cell->meeting_day;
+        $this->meeting_time = date('H:i', strtotime($this->cell->meeting_time));
     }
 
     public function updateCellInformation()
@@ -60,6 +78,18 @@ new class extends Component {
     </header>
 
     <form wire:submit="updateCellInformation" class="mt-6 space-y-6">
+        @if($cells && $cells->count() > 1)
+            <!-- Seleccionar Célula -->
+            <div>
+                <x-input-label for="selected_cell_id" value="Seleccionar Célula a Editar" />
+                <select wire:model.live="selected_cell_id" id="selected_cell_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    @foreach($cells as $c)
+                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+
         <!-- Nombre de la Célula -->
         <div>
             <x-input-label for="cell_name" value="Nombre de la Célula *" />

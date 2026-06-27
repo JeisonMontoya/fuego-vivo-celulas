@@ -93,11 +93,13 @@ class User extends Authenticatable
     public function getExpectedReportsCount(): int
     {
         $tz = $this->timezone ?? config('app.timezone');
-        $startDate = Carbon::parse($this->entry_date ?? $this->created_at, $tz);
+        $userStartDate = Carbon::parse($this->entry_date ?? $this->created_at, $tz);
         $expectedReports = 0;
 
         $cells = $this->cells;
         if ($cells->isNotEmpty()) {
+            $firstCellId = $cells->min('id');
+
             foreach ($cells as $cell) {
                 if ($cell->meeting_day) {
                     $daysMap = [
@@ -106,6 +108,16 @@ class User extends Authenticatable
                     ];
 
                     $dayOfWeek = $daysMap[$cell->meeting_day] ?? Carbon::FRIDAY;
+                    
+                    if ($cell->id === $firstCellId) {
+                        // La primera célula hereda el historial completo del usuario
+                        $startDate = $userStartDate;
+                    } else {
+                        // Células adicionales inician desde su creación o el ingreso del usuario
+                        $cellStartDate = Carbon::parse($cell->created_at, $tz);
+                        $startDate = $cellStartDate->greaterThan($userStartDate) ? $cellStartDate : $userStartDate;
+                    }
+                    
                     $currentDate = clone $startDate;
 
                     if (! $currentDate->isDayOfWeek($dayOfWeek)) {
@@ -124,7 +136,7 @@ class User extends Authenticatable
                 }
             }
         } else {
-            $expectedReports = floor($startDate->diffInDays(now($tz)) / 7);
+            $expectedReports = floor($userStartDate->diffInDays(now($tz)) / 7);
         }
 
         return (int) $expectedReports;

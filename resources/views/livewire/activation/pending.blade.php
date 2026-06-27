@@ -36,7 +36,7 @@ new #[Layout('layouts.guest')] class extends Component {
     </div>
 
     <div class="mb-4 text-sm text-gray-600 text-center">
-        ¡Hola, <span class="font-semibold text-gray-900">{{ auth()->user()->name }}</span>! Tu solicitud de registro para la célula <span class="font-semibold text-gray-900">{{ auth()->user()->cell?->name ?? 'registrada' }}</span> ha sido recibida con éxito.
+        ¡Hola, <span class="font-semibold text-gray-900">{{ auth()->user()->name }}</span>! Tu solicitud de registro para la célula <span class="font-semibold text-gray-900">{{ auth()->user()->cells->first()?->name ?? 'registrada' }}</span> ha sido recibida con éxito.
     </div>
 
     <div class="mb-6 text-sm text-gray-600 text-center">

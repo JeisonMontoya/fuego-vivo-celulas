@@ -10,7 +10,7 @@ layout('layouts.public');
 with(fn () => [
     'leaders' => User::where('role', 'leader')
         ->where('status', 'active')
-        ->with('cell')
+        ->with('cells')
         ->orderByDesc('rating')
         ->get()
 ]);
@@ -64,8 +64,8 @@ with(fn () => [
                         <div class="space-y-4">
                             <!-- Célula -->
                             <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                                <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Célula</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $leader->cell ? $leader->cell->name : 'Sin asignar' }}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Célula(s)</p>
+                                <p class="text-sm font-medium text-gray-900">{{ $leader->cells->isNotEmpty() ? $leader->cells->pluck('name')->implode(', ') : 'Sin asignar' }}</p>
                             </div>
 
                             <!-- Calificación y Cumplimiento -->

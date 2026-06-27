@@ -13,7 +13,7 @@
                 </div>
             </div>
 
-            @if(auth()->user()->role !== 'admin' && auth()->user()->cell)
+            @if(auth()->user()->role !== 'admin' && auth()->user()->cells->isNotEmpty())
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg border-t-4 border-indigo-500">
                     <div class="max-w-xl">
                         <livewire:profile.update-cell-information-form />

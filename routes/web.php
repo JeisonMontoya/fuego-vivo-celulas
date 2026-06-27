@@ -39,6 +39,10 @@ Volt::route('miembros', 'members.index')
     ->middleware(['auth', 'active'])
     ->name('members.index');
 
+Volt::route('celulas', 'cells.index')
+    ->middleware(['auth', 'active'])
+    ->name('cells.index');
+
 Volt::route('chat', 'chat.index')
     ->middleware(['auth'])
     ->name('chat.index');

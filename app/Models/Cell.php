@@ -40,4 +40,9 @@ class Cell extends Model
     {
         return $this->hasMany(CellMember::class, 'cell_id');
     }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'cell_id');
+    }
 }
