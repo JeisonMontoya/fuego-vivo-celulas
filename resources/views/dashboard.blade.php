@@ -22,7 +22,9 @@
 
     @php
         $user = auth()->user();
-        $cell = $user->cell;
+        $cells = $user->cells;
+        $cellCount = $cells->count();
+        $firstCell = $cells->first();
         $reports = $user->reports()->latest('meeting_date')->get();
         
         // Cálculos de Cumplimiento
@@ -52,7 +54,7 @@
             'Lunes' => \Carbon\Carbon::MONDAY, 'Martes' => \Carbon\Carbon::TUESDAY, 'Miércoles' => \Carbon\Carbon::WEDNESDAY,
             'Jueves' => \Carbon\Carbon::THURSDAY, 'Viernes' => \Carbon\Carbon::FRIDAY, 'Sábado' => \Carbon\Carbon::SATURDAY, 'Domingo' => \Carbon\Carbon::SUNDAY,
         ];
-        $meetingDayName = $cell->meeting_day ?? 'Viernes';
+        $meetingDayName = $firstCell->meeting_day ?? 'Viernes';
         $dayOfWeek = $daysMap[$meetingDayName] ?? \Carbon\Carbon::FRIDAY;
         
         $nextMeeting = now()->next($dayOfWeek);
@@ -86,17 +88,29 @@
                         @endif
                         <div>
                             <h3 class="text-2xl font-bold text-gray-900">{{ $user->name }}</h3>
-                            <p class="text-gray-500 font-medium">{{ $cell->name ?? 'Mi Célula' }}</p>
-                            <div class="flex items-center gap-4 mt-2 text-sm text-gray-600">
-                                <span class="flex items-center gap-1">
-                                    <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    {{ $meetingDayName }}s, {{ optional($cell)->meeting_time ? \Carbon\Carbon::parse($cell->meeting_time)->format('g:i A') : 'Sin horario' }}
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                    {{ optional($cell)->address ?? 'Sin dirección' }}
-                                </span>
-                            </div>
+                            @if($cellCount > 1)
+                                <p class="text-gray-500 font-medium">Líder de {{ $cellCount }} células</p>
+                                <div class="flex flex-col gap-2 mt-2 text-sm text-gray-600">
+                                    @foreach($cells as $c)
+                                        <span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            <strong>{{ $c->name }}</strong> - {{ $c->address ?? 'Sin dirección' }} ({{ $c->meeting_day }}s {{ \Carbon\Carbon::parse($c->meeting_time)->format('g:i A') }})
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-gray-500 font-medium">{{ optional($firstCell)->name ?? 'Mi Célula' }}</p>
+                                <div class="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        {{ $meetingDayName }}s, {{ optional($firstCell)->meeting_time ? \Carbon\Carbon::parse($firstCell->meeting_time)->format('g:i A') : 'Sin horario' }}
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        {{ optional($firstCell)->address ?? 'Sin dirección' }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center min-w-[200px]">
@@ -245,6 +259,9 @@
                                     <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                             {{ $report->meeting_date->translatedFormat('d M, Y') }}
+                                            @if($cellCount > 1 && $report->cell)
+                                                <div class="text-xs text-gray-500 font-normal mt-1">{{ $report->cell->name }}</div>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <div class="flex justify-center gap-2">

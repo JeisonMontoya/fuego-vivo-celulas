@@ -34,7 +34,6 @@ class UserFactory extends Factory
             'phone' => $this->faker->phoneNumber(),
             'address' => $this->faker->address(),
             'photo_path' => null,
-            'cell_id' => Cell::factory(),
             'sector' => $this->faker->randomElement(['Norte', 'Sur', 'Este', 'Oeste', 'Centro']),
             'entry_date' => $this->faker->date(),
             'supervisor_id' => null,
@@ -75,7 +74,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'supervisor',
-            'cell_id' => null,
         ]);
     }
 

@@ -55,16 +55,7 @@ new #[Layout('layouts.public')] class extends Component
             $photoPath = $this->photo->store('photos', 'public');
         }
 
-        // 1. Crear la Célula primero
-        $cell = Cell::create([
-            'name' => $validated['cell_name'],
-            'address' => $validated['cell_address'],
-            'meeting_day' => $validated['cell_meeting_day'],
-            'meeting_time' => $validated['cell_meeting_time'],
-            'status' => 'active',
-        ]);
-
-        // 2. Crear el Líder asociado a la Célula
+        // 1. Crear el Líder primero
         $user = User::create([
             'name' => $validated['name'],
             'document' => $validated['document'],
@@ -73,11 +64,20 @@ new #[Layout('layouts.public')] class extends Component
             'phone' => $validated['phone'],
             'address' => $validated['address'],
             'sector' => $validated['sector'],
-            'cell_id' => $cell->id,
             'entry_date' => now(),
             'role' => 'leader',
             'status' => 'pending',
             'photo_path' => $photoPath,
+        ]);
+
+        // 2. Crear la Célula asociada al Líder
+        $cell = Cell::create([
+            'leader_id' => $user->id,
+            'name' => $validated['cell_name'],
+            'address' => $validated['cell_address'],
+            'meeting_day' => $validated['cell_meeting_day'],
+            'meeting_time' => $validated['cell_meeting_time'],
+            'status' => 'active',
         ]);
 
         event(new Registered($user));

@@ -16,11 +16,12 @@ class ReportDuplicateTest extends TestCase
     public function test_user_cannot_submit_duplicate_report_for_same_date(): void
     {
         // Crear un usuario con una célula
-        $cell = Cell::factory()->create();
         $user = User::factory()->create([
             'status' => 'active',
             'role' => 'leader',
-            'cell_id' => $cell->id,
+        ]);
+        $cell = Cell::factory()->create([
+            'leader_id' => $user->id,
         ]);
 
         // Autenticar
@@ -29,6 +30,7 @@ class ReportDuplicateTest extends TestCase
         // Crear un reporte existente
         Report::create([
             'user_id' => $user->id,
+            'cell_id' => $cell->id,
             'meeting_date' => now()->format('Y-m-d'),
             'attendance_count' => 5,
             'guests_count' => 0,
@@ -40,6 +42,7 @@ class ReportDuplicateTest extends TestCase
 
         // Intentar crear otro reporte para la misma fecha a través de Volt
         $component = Volt::test('reports.create')
+            ->set('cell_id', $cell->id)
             ->set('meeting_date', now()->format('Y-m-d'))
             ->set('tithes', 50)
             ->set('offerings', 50)

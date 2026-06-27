@@ -41,7 +41,6 @@ class User extends Authenticatable
         'phone',
         'address',
         'photo_path',
-        'cell_id',
         'sector',
         'entry_date',
         'supervisor_id',
@@ -77,13 +76,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the cell that the leader belongs to.
+     * Get the cells that the leader manages.
      *
-     * @return BelongsTo<Cell, User>
+     * @return HasMany<Cell, User>
      */
-    public function cell(): BelongsTo
+    public function cells(): HasMany
     {
-        return $this->belongsTo(Cell::class, 'cell_id');
+        return $this->hasMany(Cell::class, 'leader_id');
     }
 
     public function reports()
@@ -97,27 +96,31 @@ class User extends Authenticatable
         $startDate = Carbon::parse($this->entry_date ?? $this->created_at, $tz);
         $expectedReports = 0;
 
-        $cell = $this->cell;
-        if ($cell && $cell->meeting_day) {
-            $daysMap = [
-                'Lunes' => Carbon::MONDAY, 'Martes' => Carbon::TUESDAY, 'Miércoles' => Carbon::WEDNESDAY,
-                'Jueves' => Carbon::THURSDAY, 'Viernes' => Carbon::FRIDAY, 'Sábado' => Carbon::SATURDAY, 'Domingo' => Carbon::SUNDAY,
-            ];
+        $cells = $this->cells;
+        if ($cells->isNotEmpty()) {
+            foreach ($cells as $cell) {
+                if ($cell->meeting_day) {
+                    $daysMap = [
+                        'Lunes' => Carbon::MONDAY, 'Martes' => Carbon::TUESDAY, 'Miércoles' => Carbon::WEDNESDAY,
+                        'Jueves' => Carbon::THURSDAY, 'Viernes' => Carbon::FRIDAY, 'Sábado' => Carbon::SATURDAY, 'Domingo' => Carbon::SUNDAY,
+                    ];
 
-            $dayOfWeek = $daysMap[$cell->meeting_day] ?? Carbon::FRIDAY;
-            $currentDate = clone $startDate;
+                    $dayOfWeek = $daysMap[$cell->meeting_day] ?? Carbon::FRIDAY;
+                    $currentDate = clone $startDate;
 
-            if (! $currentDate->isDayOfWeek($dayOfWeek)) {
-                $currentDate->next($dayOfWeek);
-            }
+                    if (! $currentDate->isDayOfWeek($dayOfWeek)) {
+                        $currentDate->next($dayOfWeek);
+                    }
 
-            while (true) {
-                $deadline = $currentDate->clone()->addDay()->endOfDay();
-                if (now($tz)->isAfter($deadline)) {
-                    $expectedReports++;
-                    $currentDate->addWeek();
-                } else {
-                    break;
+                    while (true) {
+                        $deadline = $currentDate->clone()->addDay()->endOfDay();
+                        if (now($tz)->isAfter($deadline)) {
+                            $expectedReports++;
+                            $currentDate->addWeek();
+                        } else {
+                            break;
+                        }
+                    }
                 }
             }
         } else {

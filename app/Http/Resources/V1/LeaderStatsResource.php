@@ -17,7 +17,7 @@ class LeaderStatsResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'cell_name' => $this->whenLoaded('cell', fn () => $this->cell->name),
+            'cell_names' => $this->whenLoaded('cells', fn () => $this->cells->pluck('name')->toArray()),
             'compliance' => $this->compliance_percentage,
             'stars' => $this->rating,
             'assigned_converts' => 0, // Hardcoded por ahora

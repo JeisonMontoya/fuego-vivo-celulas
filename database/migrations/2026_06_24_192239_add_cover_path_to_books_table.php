@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->string('cover_path')->nullable()->after('file_path');
-        });
+        if (!Schema::hasColumn('books', 'cover_path')) {
+            Schema::table('books', function (Blueprint $table) {
+                $table->string('cover_path')->nullable()->after('file_path');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->dropColumn('cover_path');
-        });
+        if (Schema::hasColumn('books', 'cover_path')) {
+            Schema::table('books', function (Blueprint $table) {
+                $table->dropColumn('cover_path');
+            });
+        }
     }
 };

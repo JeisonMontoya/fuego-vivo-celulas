@@ -7,6 +7,9 @@ use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.app')] class extends Component {
+    #[Validate('required|exists:cells,id')]
+    public $cell_id = '';
+
     #[Validate('required|date|before_or_equal:today')]
     public $meeting_date = '';
 
@@ -26,12 +29,34 @@ new #[Layout('layouts.app')] class extends Component {
 
     public $members = [];
     public $selected_members = [];
+    public $userCells = [];
 
     public function mount()
     {
         $this->meeting_date = now()->format('Y-m-d');
-        // Pre-fill the host name with the leader's name or cell info as a default, or leave blank
-        $this->members = auth()->user()->cell->members()->orderBy('name')->get();
+        $this->userCells = auth()->user()->cells;
+        
+        if ($this->userCells->count() == 1) {
+            $this->cell_id = $this->userCells->first()->id;
+            $this->loadMembers();
+        } else {
+            $this->members = [];
+        }
+    }
+
+    public function updatedCellId()
+    {
+        $this->loadMembers();
+        $this->selected_members = [];
+    }
+
+    public function loadMembers()
+    {
+        if ($this->cell_id) {
+            $this->members = \App\Models\CellMember::where('cell_id', $this->cell_id)->orderBy('name')->get();
+        } else {
+            $this->members = [];
+        }
     }
 
     public function save()
@@ -40,9 +65,9 @@ new #[Layout('layouts.app')] class extends Component {
 
         $user = auth()->user();
         
-        // Evitar reportes duplicados para la misma fecha y usuario
-        if (Report::where('user_id', $user->id)->whereDate('meeting_date', $this->meeting_date)->exists()) {
-            $this->addError('meeting_date', 'Ya has enviado un reporte para esta fecha.');
+        // Evitar reportes duplicados para la misma fecha y célula
+        if (Report::where('cell_id', $this->cell_id)->whereDate('meeting_date', $this->meeting_date)->exists()) {
+            $this->addError('meeting_date', 'Ya has enviado un reporte para esta célula en esta fecha.');
             return;
         }
         
@@ -72,6 +97,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         // Create the report
         $report = new Report([
+            'cell_id' => $this->cell_id,
             'meeting_date' => $this->meeting_date,
             'attendance_count' => $attendance_count,
             'guests_count' => 0, // Obsoleto, fijado a 0
@@ -126,6 +152,19 @@ new #[Layout('layouts.app')] class extends Component {
                     <div>
                         <h3 class="text-lg font-medium text-gray-900 border-b pb-2 mb-4">1. Datos Generales y Finanzas</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @if(count($userCells) > 1)
+                                <div class="md:col-span-2">
+                                    <x-input-label for="cell_id" value="Selecciona la Célula *" />
+                                    <select wire:model.live="cell_id" id="cell_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                        <option value="">-- Elige una célula --</option>
+                                        @foreach($userCells as $c)
+                                            <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->meeting_day }}s {{ \Carbon\Carbon::parse($c->meeting_time)->format('g:i A') }})</option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('cell_id')" class="mt-2" />
+                                </div>
+                            @endif
+
                             <div>
                                 <x-input-label for="meeting_date" value="Fecha de la reunión *" />
                                 <x-text-input wire:model="meeting_date" id="meeting_date" type="date" class="mt-1 block w-full" required max="{{ now()->format('Y-m-d') }}" />

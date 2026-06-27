@@ -35,12 +35,12 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function loadData()
     {
-        $this->pendingUsers = User::where('status', 'pending')->with('cell')->get();
+        $this->pendingUsers = User::where('status', 'pending')->with('cells')->get();
         
         $this->leaders = \Illuminate\Support\Facades\Cache::remember('admin.dashboard.leaders', now()->addMinutes(15), function() {
             return User::where('role', 'leader')
                 ->where('status', 'active')
-                ->with('cell')
+                ->with('cells')
                 ->get()
                 ->sortByDesc(function ($l) {
                     return $l->rating * 1000 + $l->compliance_percentage;
@@ -91,9 +91,9 @@ new #[Layout('layouts.app')] class extends Component {
     {
         $user = User::find($userId);
         if ($user) {
-            if ($user->cell) {
-                $user->cell->members()->delete();
-                $user->cell->delete();
+            foreach ($user->cells as $cell) {
+                $cell->members()->delete();
+                $cell->delete();
             }
             $user->delete();
             $this->loadData();
@@ -283,7 +283,7 @@ new #[Layout('layouts.app')] class extends Component {
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900 font-medium">{{ $pUser->cell->name ?? 'N/A' }}</div>
+                                            <div class="text-sm text-gray-900 font-medium">{{ optional($pUser->cells->first())->name ?? 'N/A' }}</div>
                                             <div class="text-sm text-gray-500">Sector: {{ $pUser->sector }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -339,7 +339,7 @@ new #[Layout('layouts.app')] class extends Component {
                                             </div>
                                             <div class="ml-3">
                                                 <div class="text-sm font-bold text-gray-900">{{ $leader->name }}</div>
-                                                <div class="text-xs text-gray-500">{{ $leader->cell->name ?? '' }}</div>
+                                                <div class="text-xs text-gray-500 truncate max-w-[150px]">{{ $leader->cells->pluck('name')->implode(', ') }}</div>
                                             </div>
                                         </div>
                                     </td>

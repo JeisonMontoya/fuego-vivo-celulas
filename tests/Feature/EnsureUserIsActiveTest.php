@@ -60,7 +60,7 @@ class EnsureUserIsActiveTest extends TestCase
 
         $response = $this->actingAs($admin)->get('/dashboard');
 
-        $response->assertOk();
+        $response->assertRedirect(route('admin.dashboard'));
     }
 
     /**

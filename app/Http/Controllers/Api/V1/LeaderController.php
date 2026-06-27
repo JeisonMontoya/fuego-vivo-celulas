@@ -16,7 +16,7 @@ class LeaderController extends Controller
      */
     public function index()
     {
-        $leaders = User::with('cell')->where('role', 'leader')->where('status', 'active')->paginate(15);
+        $leaders = User::with('cells')->where('role', 'leader')->where('status', 'active')->paginate(15);
 
         return LeaderResource::collection($leaders)->additional(['success' => true]);
     }
@@ -26,7 +26,7 @@ class LeaderController extends Controller
      */
     public function show(string $id)
     {
-        $leader = User::with('cell')->where('role', 'leader')->findOrFail($id);
+        $leader = User::with('cells')->where('role', 'leader')->findOrFail($id);
 
         return (new LeaderResource($leader))->additional(['success' => true]);
     }
@@ -77,7 +77,7 @@ class LeaderController extends Controller
      */
     public function stats()
     {
-        $leaders = User::with('cell')->where('role', 'leader')->where('status', 'active')->get();
+        $leaders = User::with('cells')->where('role', 'leader')->where('status', 'active')->get();
 
         return LeaderStatsResource::collection($leaders)->additional(['success' => true]);
     }

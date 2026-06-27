@@ -8,6 +8,7 @@ class Report extends Model
 {
     protected $fillable = [
         'user_id',
+        'cell_id',
         'meeting_date',
         'attendance_count',
         'guests_count',
@@ -33,5 +34,10 @@ class Report extends Model
     public function attendees()
     {
         return $this->belongsToMany(CellMember::class, 'report_attendances');
+    }
+
+    public function cell()
+    {
+        return $this->belongsTo(Cell::class);
     }
 }

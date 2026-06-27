@@ -21,13 +21,15 @@ class LeaderResource extends JsonResource
             'phone' => $this->phone,
             'role' => $this->role,
             'status' => $this->status,
-            'cell' => $this->whenLoaded('cell', function () {
-                return [
-                    'id' => $this->cell->id,
-                    'name' => $this->cell->name,
-                    'meeting_day' => $this->cell->meeting_day,
-                    'meeting_time' => $this->cell->meeting_time,
-                ];
+            'cells' => $this->whenLoaded('cells', function () {
+                return $this->cells->map(function ($cell) {
+                    return [
+                        'id' => $cell->id,
+                        'name' => $cell->name,
+                        'meeting_day' => $cell->meeting_day,
+                        'meeting_time' => $cell->meeting_time,
+                    ];
+                });
             }),
             'assigned_converts' => 0, // Hardcoded por ahora según plan
         ];

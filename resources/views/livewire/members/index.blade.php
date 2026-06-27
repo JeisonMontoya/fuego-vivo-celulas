@@ -7,9 +7,13 @@ use Livewire\Volt\Component;
 
 new #[Layout('layouts.app')] class extends Component {
     public $members;
+    public $userCells;
     public bool $showForm = false;
 
     // Form Fields
+    #[Validate('required|exists:cells,id')]
+    public $cell_id = '';
+
     #[Validate('required|string|max:255')]
     public string $name = '';
     public string $phone = '';
@@ -26,19 +30,24 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function mount()
     {
+        $this->userCells = auth()->user()->cells;
+        if ($this->userCells->count() == 1) {
+            $this->cell_id = $this->userCells->first()->id;
+        }
         $this->loadMembers();
     }
 
     public function loadMembers()
     {
-        $this->members = auth()->user()->cell->members()->orderBy('name')->get();
+        $cellIds = auth()->user()->cells->pluck('id');
+        $this->members = \App\Models\CellMember::whereIn('cell_id', $cellIds)->with('cell')->orderBy('name')->get();
     }
 
     public function saveMember()
     {
         $this->validate();
 
-        auth()->user()->cell->members()->create([
+        \App\Models\Cell::find($this->cell_id)->members()->create([
             'name' => $this->name,
             'phone' => $this->phone,
             'email' => $this->email,
@@ -66,8 +75,9 @@ new #[Layout('layouts.app')] class extends Component {
 
     public function deleteMember($id)
     {
-        $member = auth()->user()->cell->members()->find($id);
-        if ($member) {
+        $member = \App\Models\CellMember::find($id);
+        // Ensure the member belongs to one of the leader's cells
+        if ($member && auth()->user()->cells->contains('id', $member->cell_id)) {
             $member->delete();
             $this->loadMembers();
             session()->flash('status', 'Miembro borrado con éxito.');
@@ -102,6 +112,18 @@ new #[Layout('layouts.app')] class extends Component {
                 <h3 class="text-lg font-bold mb-4">Registrar Nuevo Miembro</h3>
                 <form wire:submit="saveMember" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @if(count($userCells) > 1)
+                            <div class="md:col-span-2">
+                                <x-input-label for="cell_id" value="Selecciona la Célula *" />
+                                <select wire:model="cell_id" id="cell_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">-- Elige una célula --</option>
+                                    @foreach($userCells as $c)
+                                        <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('cell_id')" class="mt-2" />
+                            </div>
+                        @endif
                         <div>
                             <x-input-label for="name" value="Nombres y Apellidos *" />
                             <x-text-input wire:model="name" id="name" type="text" class="mt-1 block w-full" required />
@@ -180,6 +202,9 @@ new #[Layout('layouts.app')] class extends Component {
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ $member->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $member->age ? $member->age . ' años' : 'Edad N/D' }}</div>
+                                        @if(count($userCells) > 1)
+                                            <div class="text-xs text-orange-600 font-bold mt-1">{{ optional($member->cell)->name }}</div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $member->phone ?? 'Sin celular' }}</div>

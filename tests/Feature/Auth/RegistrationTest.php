@@ -34,7 +34,8 @@ class RegistrationTest extends TestCase
             ->set('cell_meeting_day', 'Viernes')
             ->set('cell_meeting_time', '7:00 PM')
             ->set('password', 'password')
-            ->set('password_confirmation', 'password');
+            ->set('password_confirmation', 'password')
+            ->set('photo', \Illuminate\Http\UploadedFile::fake()->create('photo.jpg', 100, 'image/jpeg'));
 
         $component->call('register');
 
@@ -65,7 +66,7 @@ class RegistrationTest extends TestCase
 
         // Obtener el usuario recién registrado
         $user = User::where('email', 'lider.prueba@example.com')->first();
-        $this->assertNotNull($user->cell_id);
+        $this->assertTrue($user->cells()->exists());
 
         // Verificar que, al estar pendiente, al intentar acceder al dashboard es redirigido a activation/pending
         $response = $this->actingAs($user)->get('/dashboard');

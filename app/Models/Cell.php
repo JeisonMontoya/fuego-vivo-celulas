@@ -18,6 +18,7 @@ class Cell extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'leader_id',
         'name',
         'address',
         'meeting_day',
@@ -26,13 +27,13 @@ class Cell extends Model
     ];
 
     /**
-     * Get the leaders associated with the cell.
+     * Get the leader associated with the cell.
      *
-     * @return HasMany<User, Cell>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function leaders(): HasMany
+    public function leader(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasMany(User::class, 'cell_id');
+        return $this->belongsTo(User::class, 'leader_id');
     }
 
     public function members(): HasMany
